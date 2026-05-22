@@ -13,11 +13,11 @@ NEUTRAL_DUTY = 1_500_000  # throttle zero and servo center
 # Overclock
 freq(200_000_000)  # Pico 2 original: 150_000_000
 # Config LED pins
-r_led = Pin(19, Pin.OUT)
+r_led = Pin(21, Pin.OUT)
 # r_led.valeu(1)
-g_led = Pin(18, Pin.OUT)
+g_led = Pin(20, Pin.OUT)
 # g_led.valeu(1)
-b_led = Pin(20, Pin.OUT)
+b_led = Pin(19, Pin.OUT)
 # b_led.valeu(1)
 # Config drivetrain pins
 steering = PWM(Pin(17))
