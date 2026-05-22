@@ -4,13 +4,14 @@ from time import sleep
 
 # SETUP
 # Config the common anode LED
-g = Pin(18, Pin.OUT)
-g.value(1)  # 0 = on; 1 = off
-r = Pin(19, Pin.OUT)
-r.value(1)  # 0 = on; 1 = off
-b = Pin(20, Pin.OUT)
-b.value(1)  # 0 = on; 1 = off
-leds = (g, r, b)
+red = Pin(21, Pin.OUT)
+red.value(0)  # 0 = off; 1 = on
+green = Pin(20, Pin.OUT)
+green.value(0)
+blue = Pin(19, Pin.OUT)
+blue.value(0)
+# leds = (g, r, b)
+leds = (red, green, blue)
 
 # LOOP
 for i in range(len(leds)):
@@ -19,19 +20,19 @@ for i in range(len(leds)):
         sleep(0.5)
 
 print("Yellow")
-leds[0].value(0)
-leds[1].value(0)
-leds[2].value(1)
+leds[0].value(1)
+leds[1].value(1)
+leds[2].value(0)
 sleep(1)
 print("Cyan")
 leds[0].value(0)
 leds[1].value(1)
-leds[2].value(0)
+leds[2].value(1)
 sleep(1)
 print("Purple")
 leds[0].value(1)
 leds[1].value(0)
-leds[2].value(0)
+leds[2].value(1)
 sleep(1)
 # reset()
 reset()
