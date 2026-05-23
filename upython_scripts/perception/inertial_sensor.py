@@ -25,6 +25,9 @@ class MPU6050:
         self.ang_vel_y = 0.0
         self.ang_vel_z = 0.0
         # Constant
+        self.accel_bias_x = 0.0
+        self.accel_bias_y = 0.0
+        self.accel_bias_z = 0.0
         self.gyro_bias_x = 0.0
         self.gyro_bias_y = 0.0
         self.gyro_bias_z = 0.0
@@ -63,9 +66,9 @@ class MPU6050:
         # Preprocess bytes, split 2 bytes as a group
         data = [words[i] << 8 | words[i + 1] for i in range(0, len(words), 2)]
         # Calculate human readibles
-        self.lin_acc_x = process_raw(data[0], 16384) * 9.80665
-        self.lin_acc_y = process_raw(data[1], 16384) * 9.80665
-        self.lin_acc_z = process_raw(data[2], 16384) * 9.80665
+        self.lin_acc_x = process_raw(data[0], 16384) * 9.80665 - self.accel_bias_x
+        self.lin_acc_y = process_raw(data[1], 16384) * 9.80665 - self.accel_bias_y
+        self.lin_acc_z = process_raw(data[2], 16384) * 9.80665 - self.accel_bias_z
         self.ang_vel_x = process_raw(data[4], 131) * pi / 180 - self.gyro_bias_x
         self.ang_vel_y = process_raw(data[5], 131) * pi / 180 - self.gyro_bias_y
         self.ang_vel_z = process_raw(data[6], 131) * pi / 180 - self.gyro_bias_z
@@ -81,20 +84,29 @@ class MPU6050:
 
     def calibrate_gyro(self, num_samples=1000):
         """
-        One-time calibration
+        One-time calibration, 5 sec
         """
+        acc_x_deposite = 0.0
+        acc_y_deposite = 0.0
+        acc_z_deposite = 0.0
         omg_x_deposite = 0.0
         omg_y_deposite = 0.0
         omg_z_deposite = 0.0
         # print("Calibrating Gyro... DO NOT MOVE ROBOT")  # debug
         for i in range(num_samples):
             data = self.read_data()
+            acc_x_deposite += data["lin_acc_x"]
+            acc_y_deposite += data["lin_acc_y"]
+            acc_z_deposite += data["lin_acc_z"]
             omg_x_deposite += data["ang_vel_x"]
             omg_y_deposite += data["ang_vel_y"]
             omg_z_deposite += data["ang_vel_z"]
             sleep(0.005)  # 5ms delay to let the sensor refresh
             if i % 50 == 0:  # debug
                 self.board_led.toggle()
+        self.accel_bias_x = acc_x_deposite / num_samples
+        self.accel_bias_y = acc_y_deposite / num_samples
+        self.accel_bias_z = acc_z_deposite / num_samples
         self.gyro_bias_x = omg_x_deposite / num_samples
         self.gyro_bias_y = omg_y_deposite / num_samples
         self.gyro_bias_z = omg_z_deposite / num_samples
