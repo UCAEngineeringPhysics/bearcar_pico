@@ -3,9 +3,10 @@ Upload this script to Pico as 'main.py'.
 """
 
 import sys
+from utime import ticks_us, ticks_diff
 import select
 from time import sleep
-from machine import Pin, PWM, WDT, freq, reset
+from machine import freq, reset
 from action.drivetrain import Drivetrain
 from action.illuminator import Illuminator
 from perception.inertial_sensor import MPU6050
@@ -22,89 +23,42 @@ messenger = select.poll()
 messenger.register(sys.stdin, select.POLLIN)
 # Constants
 tx_period_us = 16_667 # 60 Hz
+smooth_coeff = 0.85  # low-pass filter coefficient for accel
+deadzone_acc = 0.05  # m/s^2 (Ignore micro-vibrations)
 # Variables
+filtered_acc_x = 0.0  # init accel
+lin_vel_x = 0.0
 mode = 's'  # standby
 # print("Pico is ready...")  # debug
 
 # LOOP
-try:
-    while True:
-        # Transmit data (TX)
-        now_us = ticks_us()
-        if ticks_diff(now_us, last_us) >= tx_period_us:
-            motion_data = imu.read_data()
-            out_msg = f"{motion_data['lin_acc_x']:.3f},{motion_data['ang_vel_z']:.3f}"
-            print(out_msg)  # main.py will send this to computer
-            last_us = now_us  # update last time stamp
-        # Receive data (RX)
-        is_waiting = pico_messenger.poll(0)  # check data in USB
-        if is_waiting:
-            in_msg = sys.stdin.readline().strip()  # take out whitespaces
-            targ_vels = in_msg.split(",")  # get a list
-            if len(targ_vels) == 2:
-                try:
-                    targ_lin_vel = float(targ_vels[0])
-                    targ_ang_vel = float(targ_vels[1])
-                    mobile_base.set_vels(targ_lin_vel, targ_ang_vel)
-                except ValueError:
-                    pass
-
-
-
-        dutycycle_st = NEUTRAL_DUTY
-        dutycycle_th = NEUTRAL_DUTY
-        for msg, _ in event:
-            if msg:
-                wdt.feed()
-                msg_line = msg.readline().rstrip()
-                # print(f"Pico heard: {msg_line}")  # debug
-                msg_parts = msg_line.split(",")
-                # print(f"Pico heard: {msg_parts}")  # debug
-                if len(msg_parts) == 3:
-                    # print("Pico heard 2 parts")  # debug
-                    try:
-                        # Process driving actions
-                        dutycycle_st = int(msg_parts[1])
-                        dutycycle_th = int(msg_parts[2])
-                        # Process LED actions
-                        mode = msg_parts[0]
-                        if mode is 'n':  # normal
-                            r_led.value(1)
-                            g_led.value(0)
-                            b_led.value(1)
-                        elif mode is 'r':  # recording
-                            r_led.value(1)
-                            g_led.value(1)
-                            b_led.value(0)
-                        elif mode is 'a':  # autopilot
-                            r_led.value(0)
-                            g_led.value(1)
-                            b_led.value(0)
-                        elif mode is 'p':  # pause
-                            r_led.value(0)
-                            g_led.value(0)
-                            b_led.value(1)
-                            dutycycle_st = NEUTRAL_DUTY
-                            dutycycle_th = NEUTRAL_DUTY
-                        else:  # error
-                            r_led.value(0)
-                            g_led.value(1)
-                            b_led.value(1)
-                            dutycycle_st = NEUTRAL_DUTY
-                            dutycycle_th = NEUTRAL_DUTY
-                        # print(f"Pico received command: {mode}, {dutycycle_st}, {dutycycle_th}") # debug
-                        steering.duty_ns(dutycycle_st)
-                        throttle.duty_ns(dutycycle_th)
-                    except ValueError:
-                        # print("ValueError!")  # debug
-                        reset()
-            else:
-                throttle.duty_ns(NEUTRAL_DUTY)
-                steering.duty_ns(NEUTRAL_DUTY)
-                reset()
-except Exception as e:
-    # print('Pico reset')  # debug
-    reset()
-finally:
-    # print('Pico reset')  # debug
-    reset()
+last_us = ticks_us()
+while True:
+    # Transmit data (TX)
+    now_us = ticks_us()
+    if ticks_diff(now_us, last_us) >= tx_period_us:
+        # Extract linear velocity on x and angular velocity on z
+        motion_data = imu.read_data()
+        filtered_acc_x = (smooth_coeff * filtered_acc_x) + ((1 - smooth_coeff) * motion_data['lin_acc_x'])
+        if abs(filtered_acc_x) < deadzone_acc:
+            filtered_acc_x = 0.0
+            lin_vel_x *= 0.05 
+            if abs(lin_vel_x) < 0.01: v_x = 0.0
+        lin_vel_x += filtered_acc_x * tx_period_us * 1e-6
+        out_msg = f"{lin_vel_x:.3f},{motion_data['ang_vel_z']:.3f}"
+        print(out_msg)  # main.py will send this to computer
+        last_us = now_us  # update last time stamp
+    # Receive data (RX)
+    is_waiting = messenger.poll(0)  # check data in USB
+    if is_waiting:
+        in_msg = sys.stdin.readline().strip().split(",")
+        if len(in_msg) == 3:
+            try:
+                rgb_led.glow(in_msg[0])
+                drivetrain.set_angle(int(in_msg[1]))
+                drivetrain.set_speed(int(in_msg[2]))
+            except ValueError:
+                pass
+        else:
+            rgb_led.glow('e')
+            drivetrain.stop()

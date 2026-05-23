@@ -3,7 +3,7 @@ from machine import Pin, PWM
 NEUTRAL_PULSE_WIDTH = 1_500_000 # nanosec
 
 class Drivetrain:
-    def __init__(self, steering_pin_id=16, throttle_pin_id=17): -> None
+    def __init__(self, steering_pin_id=16, throttle_pin_id=17):
         self.steering = PWM(Pin(steering_pin_id))
         self.steering.freq(50)
         self.throttle = PWM(Pin(throttle_pin_id))
