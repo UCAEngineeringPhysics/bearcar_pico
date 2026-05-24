@@ -25,31 +25,40 @@ messenger.register(sys.stdin, select.POLLIN)
 tx_period_us = 16_667  # 60 Hz
 # Variables
 mode = "s"  # standby
+rgb_led.glow(mode)
 # print("Pico is ready...")  # debug
 
 # LOOP
 last_us = ticks_us()
-while True:
-    # Transmit data (TX)
-    now_us = ticks_us()
-    if ticks_diff(now_us, last_us) >= tx_period_us:
-        # Extract angular velocity on z
-        motion_data = imu.read_data()
-        out_msg = f"{motion_data['ang_vel_z']:.3f}"
-        print(out_msg)  # main.py will send this to computer
-        last_us = now_us  # update last time stamp
-    # Receive data (RX)
-    is_waiting = messenger.poll(0)  # check data in USB
-    if is_waiting:
-        in_msg = sys.stdin.readline().strip().split(",")
-        if len(in_msg) == 3:
-            try:
-                rgb_led.glow(in_msg[0])
-                driver.set_angle(int(in_msg[1]))
-                driver.set_speed(int(in_msg[2]))
-            except ValueError:
+try:
+    while True:
+        # Transmit data (TX)
+        now_us = ticks_us()
+        if ticks_diff(now_us, last_us) >= tx_period_us:
+            # Extract angular velocity on z
+            motion_data = imu.read_data()
+            out_msg = f"{motion_data['ang_vel_z']:.3f}"
+            print(out_msg)  # main.py will send this to computer
+            last_us = now_us  # update last time stamp
+        # Receive data (RX)
+        is_waiting = messenger.poll(0)  # check data in USB
+        if is_waiting:
+            in_msg = sys.stdin.readline().strip().split(",")
+            if len(in_msg) == 3:
+                try:
+                    rgb_led.glow(in_msg[0])
+                    driver.set_angle(int(in_msg[1]))
+                    driver.set_speed(int(in_msg[2]))
+                except ValueError:
+                    rgb_led.glow("e")
+                    driver.stop()
+            else:
                 rgb_led.glow("e")
                 driver.stop()
-        else:
-            rgb_led.glow("e")
-            driver.stop()
+except Exception as e:
+    # print('Pico reset')  # debug
+    reset()
+finally:
+    # print('Pico reset')  # debug
+    reset()
+
