@@ -47,8 +47,11 @@ try:
             if len(in_msg) == 3:
                 try:
                     rgb_led.glow(in_msg[0])
-                    driver.set_angle(int(in_msg[1]))
-                    driver.set_speed(int(in_msg[2]))
+                    if in_msg[0] in ("a", "n", "r"):
+                        driver.set_angle(int(in_msg[1]))
+                        driver.set_speed(int(in_msg[2]))
+                    else:
+                        driver.stop()                    
                 except ValueError:
                     rgb_led.glow("e")
                     driver.stop()
