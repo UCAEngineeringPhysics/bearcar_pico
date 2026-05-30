@@ -26,14 +26,15 @@ sudo usermod -aG dialout $USER
   cd bearcar_pico
   ```
 
-2. Upload motion and perception controller 
+2. Upload action and perception modules.
 
   ```console
   rshell -p /dev/ttyACM0 --buffer-size 512 cp -r upython_scripts/perception /pyboard/
   rshell -p /dev/ttyACM0 --buffer-size 512 cp -r upython_scripts/action /pyboard/
   ```
 
-3. Set up automatic communication with the Raspberry Pi or any computer using [`pico_interface.py`](./upython_scripts/pico_interface.py).
+3. Upload main script.
+This will set up automatic communication with the Raspberry Pi or any computer using [`pico_interface.py`](./upython_scripts/pico_interface.py).
 
   ```console
   rshell -p /dev/ttyACM0 --buffer-size 512 cp upython_scripts/pico_interface.py /pyboard/main.py
@@ -47,10 +48,11 @@ sudo usermod -aG dialout $USER
 
 ## Usage
 
-### Calibrate ESC following the instructions in [`calibrate_esc.py`](./upython_scripts/calibrate_esc.py).
-  > [!TIP]
-  > Use [Thonny](https://thonny.org/) IDE.
+### Calibrate ESC 
+> [!TIP]
+> Use [Thonny](https://thonny.org/) IDE.
 
+Follow the instructions in [`calibrate_esc.py`](./upython_scripts/calibrate_esc.py).
 
 ### LED Indicator
 | Mode Name | LED Color |
