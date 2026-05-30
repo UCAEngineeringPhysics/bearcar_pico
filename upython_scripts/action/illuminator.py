@@ -32,7 +32,7 @@ class Illuminator:
             self.red_led.value(0)
             self.green_led.value(1)
             self.blue_led.value(1)
-        else:
+        else:  # mode not registered, off
             self.red_led.value(0)
             self.green_led.value(0)
             self.blue_led.value(0)
