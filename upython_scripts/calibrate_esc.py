@@ -3,7 +3,7 @@ from time import sleep
 
 # SAFETY CHECK
 is_lifted = input("Is anything making contact to any wheel of BearCar? (Y/n)")
-while is_lifted is not "n":
+while not is_lifted == "n":
     print("Please lift BearCar up and make sure the wheels are in the air!")
     is_lifted = input("Is anything making contact to any wheel of BearCar? (Y/n)")
 print("Please calibrate ESC throttle follow the steps below:")
@@ -23,7 +23,6 @@ DUTY_FMAX = 2_000_000
 # Set neutral throttle's dutycycle
 throttle.duty_ns(DUTY_NEUTRAL)
 sleep(0.5)
-# TODO: config led for a naive HRI
 
 # LOOP
 try:
