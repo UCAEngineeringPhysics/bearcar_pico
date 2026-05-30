@@ -1,16 +1,19 @@
 # MicroPython Scripts for RPi Pico on [BearCar](https://github.com/ucaengineeringphysics/bearcar)
 
 
-## Usage (Linux)
+## Usage (Debian-like Linux)
 0. Install dependencies and grant user permission to access Pico
   ```console
   sudo apt install python3-pip
-  pip install rshell
-  sudo usermod -aG dialout $USER
+  pip install rshell --break-system-packages
   ```
 
-  > [!TIP]
-  > Reboot computer to gain access unless you are on RPiOS.
+> [!TIP]
+> If you are **NOT** on Raspberry Pi OS, enter the following command in terminal then reboot computer.
+>
+```console
+sudo usermod -aG dialout $USER
+```
 
 1. Download and dive into the local repository.
 
