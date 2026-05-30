@@ -46,13 +46,6 @@ sudo usermod -aG dialout $USER
   > [!TIP]
   > Use [Thonny](https://thonny.org/) IDE.
 
-## Test
-
-```console
-cd ~/homer_pico/
-python3 tests/computer_messenger.py
-```
-
 
 ## LED Indicator
 | Mode Name | LED Color |
