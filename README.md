@@ -1,7 +1,10 @@
 # MicroPython Scripts for RPi Pico on [BearCar](https://github.com/ucaengineeringphysics/bearcar)
 
+## Prepare
+Flash the latest MicroPython firmware to Raspberry Pi Pico board.
+For Raspberry Pi Pico 2: download [here](https://micropython.org/download/RPI_PICO2/)
 
-## Usage (Debian-like Linux)
+## Installation (Debian-like Linux)
 0. Install dependencies and grant user permission to access Pico
   ```console
   sudo apt install python3-pip
@@ -42,12 +45,14 @@ sudo usermod -aG dialout $USER
 > [!IMPORTANT]
 > If you are completely new to Pico or MicroPython, please follow the official [guide](https://projects.raspberrypi.org/en/projects/getting-started-with-the-pico/) to get started.
 
-4. Calibrate ESC following the instructions in [`calibrate_esc.py`](./upython_scripts/calibrate_esc.py).
+## Usage
+
+### Calibrate ESC following the instructions in [`calibrate_esc.py`](./upython_scripts/calibrate_esc.py).
   > [!TIP]
   > Use [Thonny](https://thonny.org/) IDE.
 
 
-## LED Indicator
+### LED Indicator
 | Mode Name | LED Color |
 | :---      |   :---:   |
 | Autopilot | Purple    |
