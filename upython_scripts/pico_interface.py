@@ -37,7 +37,7 @@ try:
         if ticks_diff(now_us, last_tx_us) >= tx_period_us:
             # Extract angular velocity on z
             motion_data = imu.read_data()
-            out_msg = f"{motion_data['ang_vel_z']:.3f}"
+            out_msg = f"{motion_data['ang_vel_z']:.2f}"
             print(out_msg)  # main.py will send this to computer
             last_tx_us = now_us  # update last time stamp
         # Receive data (RX)
